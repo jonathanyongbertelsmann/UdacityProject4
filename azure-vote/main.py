@@ -6,7 +6,7 @@ import socket
 import sys
 import logging
 from datetime import datetime
-
+import requests
 # App Insights
 # TODO: Import required libraries for App Insights
 from opencensus.ext.azure.log_exporter import AzureLogHandler
