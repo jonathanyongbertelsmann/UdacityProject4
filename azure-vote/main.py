@@ -6,7 +6,7 @@ import socket
 import sys
 import logging
 from datetime import datetime
-import requests
+
 # App Insights
 # TODO: Import required libraries for App Insights
 from opencensus.ext.azure.log_exporter import AzureLogHandler
@@ -40,8 +40,8 @@ logger.setLevel(logging.INFO)
 
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
-enable_standard_metrics=True,
-connection_string='InstrumentationKey=425ff687-f5b5-41f3-b2ce-3fcdf8bbd5c6')
+    enable_standard_metrics=True,
+    connection_string='InstrumentationKey=425ff687-f5b5-41f3-b2ce-3fcdf8bbd5c6')
 view_manager.register_exporter(exporter)
 
 # Tracing
@@ -55,9 +55,9 @@ app = Flask(__name__)
 
 # Requests
 middleware = FlaskMiddleware(
- app,
- exporter=AzureExporter(connection_string="InstrumentationKey=425ff687-f5b5-41f3-b2ce-3fcdf8bbd5c6"),
- sampler=ProbabilitySampler(rate=1.0)
+    app,
+    exporter=AzureExporter(connection_string="InstrumentationKey=425ff687-f5b5-41f3-b2ce-3fcdf8bbd5c6"),
+    sampler=ProbabilitySampler(rate=1.0)
 )
 
 # Load configurations from environment or config file
@@ -99,6 +99,7 @@ def index():
         # TODO: use tracer object to trace cat vote
         with tracer.span(name="Cats Vote") as span:
          print("Cats Vote")
+
         vote2 = r.get(button2).decode('utf-8')
         # TODO: use tracer object to trace dog vote
         with tracer.span(name="Dogs Vote") as span:
@@ -134,7 +135,14 @@ def index():
 
             # Get current values
             vote1 = r.get(button1).decode('utf-8')
+            properties = {'custom_dimensions': {'Cats Vote': vote1}}
+            # TODO: use logger object to log cat vote
+            logger.info('Cats Vote', extra=properties)
+
             vote2 = r.get(button2).decode('utf-8')
+            properties = {'custom_dimensions': {'Dogs Vote': vote2}}
+            # TODO: use logger object to log dog vote
+            logger.info('Dogs Vote', extra=properties)
 
             # Return results
             return render_template("index.html", value1=int(vote1), value2=int(vote2), button1=button1, button2=button2, title=title)
